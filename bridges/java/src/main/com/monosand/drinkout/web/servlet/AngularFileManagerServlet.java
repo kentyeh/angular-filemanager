@@ -454,12 +454,12 @@ public class AngularFileManagerServlet extends HttpServlet {
             String newpath = params.getAsString("newItemPath");
             LOG.debug("rename from: {} to: {}", path, newpath);
 
-            File srcFile = new File(REPOSITORY_BASE_PATH, path);
-            File destFile = new File(REPOSITORY_BASE_PATH, newpath);
-            if (srcFile.isFile()) {
-                FileUtils.moveFile(srcFile, destFile);
+            Path srcFile = new File(REPOSITORY_BASE_PATH, path).toPath();
+            Path destFile = new File(REPOSITORY_BASE_PATH, newpath).toPath();
+            if (Files.exists(destFile)) {
+                return error(newpath + " already exists!");
             } else {
-                FileUtils.moveDirectory(srcFile, destFile);
+                Files.move(srcFile, destFile, Files.isDirectory(srcFile) ? StandardCopyOption.ATOMIC_MOVE : StandardCopyOption.REPLACE_EXISTING);
             }
             return success(params);
         } catch (IOException e) {
